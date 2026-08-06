@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# 训练产物
+output/
+work_dirs/
+*.pth
+*.log
+*.json
+
+# 数据（自行放置）
+data/img/**
+data/mask/**
+!data/img/.gitkeep
+!data/mask/.gitkeep
+!data/img/**/.gitkeep
+!data/mask/**/.gitkeep
+
+# 环境
+.conda/
+.ipynb_checkpoints/

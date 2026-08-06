@@ -1,0 +1,2 @@
+include requirements/*.txt
+include mmseg/utils/bpe_simple_vocab_16e6.txt.gz
