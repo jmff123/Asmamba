@@ -1,21 +1,23 @@
+# Project README 
 
-## 核心特性
+## Core Features
 
-- **Backbone**：`Asmamba`，启用 **SA-SSM**（Snake-Adaptive SSM 蛇形双向扫描 + 自适应门控）
-- **Decode Head**：`UPerHeadDictEnhanced`（增强动态字典：关系矩阵 + 对比损失 + 自适应权重）
-- **Sampler / Hook**：`IterBasedDCBSComplementSampler` + `DCBSComplementHook`（互补样本检测）
-- **Losses**：Dice + Focal + Lovasz + Tversky 多损失组合
-- **数据**：`CustomThreeClassDataset` / `CustomThreeClassOversampleDataset`
+- **Backbone**: `Asmamba` with **SA‑SSM** (Snake‑Adaptive SSM: snake‑shaped bidirectional scanning + adaptive gating)
+- **Decode Head**: `UPerHeadDictEnhanced` (enhanced dynamic dictionary: relation matrix + contrastive loss + adaptive weight)
+- **Sampler / Hook**: `IterBasedDCBSComplementSampler` + `DCBSComplementHook` (complementary sample detection)
+- **Losses**: Multi‑loss combination of Dice + Focal + Lovasz + Tversky
+- **Datasets**: `CustomThreeClassDataset` / `CustomThreeClassOversampleDataset`
+- **Test set**: Test data is stored under `data_test/`, containing `img` and `mask` sub‑folders
 
-## 目录结构
+## Directory Structure
 
 ```
 Asmamba_sa_ssm_upernet_dict_enhanced_project/
 ├── configs/
-│   └── Asmamba_sa_ssm_upernet_dict_enhanced.py   # 训练配置（自包含，可直接运行）
-├── mmseg/                                      # mmseg 框架包（含本实验全部自定义模块）
+│   └── Asmamba_sa_ssm_upernet_dict_enhanced.py   # Self‑contained training config, ready‑to‑run
+├── mmseg/                                      # mmseg framework with all custom modules for this experiment
 │   ├── models/
-│   │   ├── backbones/    # Asmamba / SA-SSM / 4D-8D-SSM 等
+│   │   ├── backbones/    # Asmamba / SA‑SSM / 4D‑8D‑SSM, etc.
 │   │   ├── decode_heads/ # UPerHeadDictEnhanced / UPerHeadDict
 │   │   ├── losses/       # Dice / Focal / Lovasz / Tversky
 │   │   └── utils/        # dynamic_dictionary(_enhanced) / adaptive_loss_weights
@@ -23,92 +25,104 @@ Asmamba_sa_ssm_upernet_dict_enhanced_project/
 │   ├── engine/hooks/     # dcbs_complement_hook / csv_logger_hook
 │   ├── evaluation/  structures/  utils/  visualization/  registry/
 ├── tools/
-│   ├── train.py          # 训练入口
-│   └── test.py           # 测试 / 评估入口
-├── data/                 # 数据占位目录（自行放入真实数据，见下文）
-│   ├── img/{train,val,test}/
-│   └── mask/{train,val,test}/
-├── requirements/         # 依赖清单
+│   ├── train.py          # Training entry script
+│   └── test.py           # Test / evaluation entry script
+├── data/                 # Placeholder for training & validation data (populate with real data, see below)
+│   ├── img/{train,val}/
+│   └── mask/{train,val}/
+├── data_test/            # Test dataset directory
+│   ├── img/test/
+│   └── mask/test/
+├── requirements/         # Dependency lists
 ├── requirements.txt
 ├── setup.py / setup.cfg / MANIFEST.in
-├── run.sh                # 一键训练脚本
+├── run.sh                # One‑click training script
 └── README.md
 ```
 
-## 环境准备
+## Environment Setup
 
-
-
-```bash
-
-conda activate Asmamba          # 
-pip install -e .                # 可选：以可编辑方式安装 mmseg 包
+```
+conda activate Asmamba          
+pip install -e .                # Optional: install mmseg in editable mode
 ```
 
-依赖版本：
+Dependency versions:
 
-| 依赖 | 版本 |
-|------|------|
-| Python | 3.9 |
-| PyTorch | 2.1.2+cu121 |
-| mmcv | 2.1.0 |
-| mmengine | 0.10.7 |
-| timm | ≥0.9（含 DropPath/to_2tuple/register_model） |
-| mamba_ssm | ≥1.0（提供 `Mamba` 算子） |
-| einops | ≥0.6 |
+| Dependency | Version                                           |
+| ---------- | ------------------------------------------------- |
+| Python     | 3.9                                               |
+| PyTorch    | 2.1.2+cu121                                       |
+| mmcv       | 2.1.0                                             |
+| mmengine   | 0.10.7                                            |
+| timm       | ≥0.9 (provides DropPath/to_2tuple/register_model) |
+| mamba_ssm  | ≥1.0 (provides native `Mamba` operator)           |
+| einops     | ≥0.6                                              |
 
-> `Asmamba` backbone 依赖 `mamba_ssm`（CUDA 编译）与 `timm`，缺失会导致导入失败。
-> 其余运行依赖见 [requirements/runtime.txt](requirements/runtime.txt) 与 [requirements/mminstall.txt](requirements/mminstall.txt)。
+> The `Asmamba` backbone requires CUDA‑compiled `mamba_ssm` and `timm`. Missing packages will trigger import errors. Additional runtime dependencies are listed in `requirements/runtime.txt` and `requirements/mminstall.txt`.
 
-## 数据准备
+## Data Preparation
 
-配置文件使用 `data_root = 'data'`，需要把真实数据放入本工程 `data/` 目录：
+Training and validation data root is set to `data/`. Place your real training‑validation dataset inside this folder:
 
 ```
 data/
 ├── img/
 │   ├── train/   *.png
-│   ├── val/     *.png
+│   └── val/     *.png
+└── mask/
+    ├── train/   *.png (file names match corresponding images)
+    └── val/     *.png
+```
+
+Test dataset is located under `data_test/`:
+
+```
+data_test/
+├── img/
 │   └── test/    *.png
 └── mask/
-    ├── train/   *.png（与 img 同名）
-    ├── val/     *.png
-    └── test/    *.png
+    └── test/    *.png (file names match corresponding test images)
 ```
 
-原始数据位于原仓库 `/home/zjl/envs/Samba-main/data/`（原仓库目录名未改动），可直接复制：
+Original source dataset resides at `/home/zjl/envs/Samba-main/data/` in the original environment. You can copy files directly:
 
-```bash
+```
+# Copy train‑val data
 cp -r /home/zjl/envs/Samba-main/data/img/* data/img/
 cp -r /home/zjl/envs/Samba-main/data/mask/* data/mask/
+
+# Copy test data to data_test
+cp -r /home/zjl/envs/Samba-main/data/img/test/* data_test/img/test/
+cp -r /home/zjl/envs/Samba-main/data/mask/test/* data_test/mask/test/
 ```
 
-## 训练
+## Training
 
-```bash
-# 一键脚本
+```
+# One‑click script
 bash run.sh
 
-# 或手动执行
+# Manual execution
 python tools/train.py configs/Asmamba_sa_ssm_upernet_dict_enhanced.py
 ```
 
-- 默认单卡训练 80000 iter，输出目录 `output/Asmamba_sa_ssm_upernet_dict_enhanced/`
-- 指定其它输出目录：`python tools/train.py <config> --work-dir <dir>`
-- 断点续训：`python tools/train.py <config> --work-dir <dir> --resume`
+- Default setting: single‑GPU training for 80000 iterations. Outputs are saved to `output/Asmamba_sa_ssm_upernet_dict_enhanced/`.
+- Specify custom output directory: `python tools/train.py <config> --work-dir <dir>`
+- Resume from checkpoint: `python tools/train.py <config> --work-dir <dir> --resume`
 
-## 测试 / 评估
+## Test / Evaluation
 
-```bash
+```
 python tools/test.py \
     configs/Asmamba_sa_ssm_upernet_dict_enhanced.py \
     output/Asmamba_sa_ssm_upernet_dict_enhanced/best_mIoU_iter_78000.pth
 ```
 
-输出 mIoU / mDice / mFscore，并保存分割可视化结果。
+Metrics including mIoU, mDice and mFscore will be printed. Segmentation visualizations will also be dumped.
 
-## 说明
+## Notes
 
-- `configs/Asmamba_sa_ssm_upernet_dict_enhanced.py` 为训练时实际使用的**自包含配置**（由 mmengine 完整 dump），不依赖 `_base_` 配置链。
-- 训练权重（`.pth`，约 13GB）为输出产物，未包含在本工程内；需要时从原 `output/` 目录复制。
-- 模型从零初始化训练（配置中 `load_from = None`），无需预训练权重。
+- `configs/Asmamba_sa_ssm_upernet_dict_enhanced.py` is the self‑contained training configuration dumped by mmengine, without relying on `_base_` config inheritance chains.
+- Trained weights (`.pth`, ~13 GB) are runtime outputs and are not included in this repository. Copy weight files from the original `output/` directory when needed.
+- The model is trained from scratch (`load_from = None` in config), no external pre‑trained weights are required.
