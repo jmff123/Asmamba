@@ -85,18 +85,6 @@ data_test/
     └── test/    *.png (file names match corresponding test images)
 ```
 
-Original source dataset resides at `/home/zjl/envs/Samba-main/data/` in the original environment. You can copy files directly:
-
-```
-# Copy train‑val data
-cp -r /home/zjl/envs/Samba-main/data/img/* data/img/
-cp -r /home/zjl/envs/Samba-main/data/mask/* data/mask/
-
-# Copy test data to data_test
-cp -r /home/zjl/envs/Samba-main/data/img/test/* data_test/img/test/
-cp -r /home/zjl/envs/Samba-main/data/mask/test/* data_test/mask/test/
-```
-
 ## Training
 
 ```
